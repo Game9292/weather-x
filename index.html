@@ -541,5 +541,19 @@
 
     <script src="app-part1.js"></script>
     <script src="app-part2.js"></script>
+
+      <!-- manifest.json faylini ilovaga ulash -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Service Worker (sw.js) faylini ishga tushirish skripti -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Oflayn rejim muvaffaqiyatli yoqildi!'))
+          .catch(err => console.log('Xatolik yuz berdi:', err));
+      });
+    }
+  </script>
 </body>
 </html>
