@@ -1,12 +1,13 @@
 const CACHE_NAME = 'obhavo-cache-v1';
-// Oflayn rejimda saqlanishi kerak bo'lgan barcha fayllaringiz ro'yxati:
+// Aynan sizning 3 ta faylingiz ro'yxati:
 const ASSETS = [
+  './',
   'index.html',
-  'style.css',
-  'script.js'
+  'app-part1.js',
+  'app-part2.js'
 ];
 
-// Fayllarni keshga saqlash
+// Ilova birinchi marta ochilganda fayllarni telefon keshiga saqlash
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -15,15 +16,11 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// Internet yo'q bo'lsa, fayllarni keshdan olib berish
+// Internet yo'q bo'lganda fayllarni keshdan (oflayn) olib berish
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
-      // Agar keshda bo'lsa keshdan beradi, bo'lmasa internetdan qidiradi
-      return cachedResponse || fetch(e.request).catch(() => {
-        // Agar ob-havo API so'rovi muvaffaqiyatsiz tugasa, eski keshni qaytaradi
-        return caches.match('index.html');
-      });
+      return cachedResponse || fetch(e.request);
     })
   );
 });
