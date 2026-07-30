@@ -93,7 +93,7 @@ const dict = {
         avFog: "Ko'rish masofasi kamaygan. Ayrim reyslarda kechikish ehtimoli mavjud.",
         clothT: "Kiyim va Quyosh", clothM_good: "Yengil kiyim.", clothM_bad: "Yuqori UV - quyosh kremi va ko'zoynak taqing.",
         extremeHot: "⚠️ JUDA ISSIQ!", extremeCold: "⚠️ JUDA SOVUQ!", extremeWind: "⚠️ KUCHLI SHAMOL!", extremeStorm: "⚠️ MOMAQALDIROQ XAVFI!",
-        tempVeryCold: "🥶 Juda sovuq", tempCold: "❄️ Sovuq", tempCool: "🧥 Salqin", tempHot: "☀️ Issiq", tempVeryHot: "🔥 Juda issiq",
+        tempVeryCold: "🥶 Juda sovuq", tempCold: "❄️ Sovuq", tempHot: "🥵 Issiq", tempVeryHot: "🔥 Juda issiq",
         condFog: "🌫️ Tuman", condLowVis: "👁️ Ko'rish masofasi past", condHighUV: "☀️ Yuqori UV", condBadAQI: "😷 Havo sifati yomon",
         extremeRain: "⚠️ KUCHLI YOMG'IR!", extremeSnow: "⚠️ KUCHLI QOR!", moderateRain: "🌧️ O'rtacha yomg'ir", lightRain: "🌦️ Yengil yomg'ir",
         lastUpdated: "Oxirgi yangilanish", refresh: "Yangilash", refreshing: "Yangilanmoqda...", fetchError: "⚠️ Ma'lumotlarni olishda xatolik yuz berdi", retry: "Qayta urinish",
@@ -175,7 +175,7 @@ const dict = {
         avFog: "Видимость снижена. Возможны задержки некоторых рейсов.",
         clothT: "Одежда и Солнце", clothM_good: "Легкая одежда.", clothM_bad: "Высокий УФ - используйте крем и очки.",
         extremeHot: "⚠️ ОЧЕНЬ ЖАРКО!", extremeCold: "⚠️ ОЧЕНЬ ХОЛОДНО!", extremeWind: "⚠️ СИЛЬНЫЙ ВЕТЕР!", extremeStorm: "⚠️ ОПАСНОСТЬ ГРОЗЫ!",
-        tempVeryCold: "🥶 Очень холодно", tempCold: "❄️ Холодно", tempCool: "🧥 Прохладно", tempHot: "☀️ Жарко", tempVeryHot: "🔥 Очень жарко",
+        tempVeryCold: "🥶 Очень холодно", tempCold: "❄️ Холодно", tempHot: "🥵 Жарко", tempVeryHot: "🔥 Очень жарко",
         condFog: "🌫️ Туман", condLowVis: "👁️ Низкая видимость", condHighUV: "☀️ Высокий УФ", condBadAQI: "😷 Плохое качество воздуха",
         extremeRain: "⚠️ СИЛЬНЫЙ ЛИВЕНЬ!", extremeSnow: "⚠️ СИЛЬНЫЙ СНЕГОПАД!", moderateRain: "🌧️ Умеренный дождь", lightRain: "🌦️ Небольшой дождь",
         lastUpdated: "Последнее обновление", refresh: "Обновить", refreshing: "Обновление...", fetchError: "⚠️ Не удалось загрузить данные", retry: "Повторить",
@@ -257,7 +257,7 @@ const dict = {
         avFog: "Visibility is reduced. Some flights may be delayed.",
         clothT: "Clothing & Sun", clothM_good: "Light clothing.", clothM_bad: "High UV - wear sunscreen and sunglasses.",
         extremeHot: "⚠️ EXTREMELY HOT!", extremeCold: "⚠️ EXTREMELY COLD!", extremeWind: "⚠️ STRONG WIND!", extremeStorm: "⚠️ THUNDERSTORM DANGER!",
-        tempVeryCold: "🥶 Very cold", tempCold: "❄️ Cold", tempCool: "🧥 Cool", tempHot: "☀️ Hot", tempVeryHot: "🔥 Very hot",
+        tempVeryCold: "🥶 Very cold", tempCold: "❄️ Cold", tempHot: "🥵 Hot", tempVeryHot: "🔥 Very hot",
         condFog: "🌫️ Fog", condLowVis: "👁️ Low visibility", condHighUV: "☀️ High UV", condBadAQI: "😷 Poor air quality",
         extremeRain: "⚠️ HEAVY RAIN!", extremeSnow: "⚠️ HEAVY SNOW!", moderateRain: "🌧️ Moderate rain", lightRain: "🌦️ Light rain",
         lastUpdated: "Last updated", refresh: "Refresh", refreshing: "Refreshing...", fetchError: "⚠️ Failed to fetch weather data", retry: "Retry",
@@ -399,6 +399,12 @@ function applyAdaptiveContrast(hexTop, hexBottom) {
     const lumBottom = relativeLuminance(hexToRgb(hexBottom));
     const avgLum = (lumTop + lumBottom) / 2;
     document.body.classList.toggle('light-bg', avgLum > 140);
+
+    // Keep the page background and the strip behind the bottom system nav/gesture bar
+    // in sync with the current weather gradient, so no black/foreign gap ever shows.
+    document.body.style.backgroundColor = hexBottom;
+    const bottomFill = document.getElementById('bottomSafeFill');
+    if (bottomFill) bottomFill.style.background = hexBottom;
 }
 
 function startWeatherAnimation(code, isDay) {
@@ -507,7 +513,8 @@ function startWeatherAnimation(code, isDay) {
 
 function getWeatherDesc(code, lang) {
     if (code === 0) return dict[lang].clear;
-    if (code >= 1 && code <= 3) return dict[lang].partlyCloudy;
+    if (code === 1 || code === 2) return dict[lang].partlyCloudy;
+    if (code === 3) return dict[lang].cloudy;
     if (code === 45 || code === 48) return dict[lang].foggy;
     if ([65, 67, 82].includes(code)) return dict[lang].rainHeavy;
     if ([63, 66, 81, 53].includes(code)) return dict[lang].rainModerate;
