@@ -22,9 +22,13 @@ function setActiveAlerts(alertsArray) {
 
     if (currentAlerts.length > 1) {
         alertRotationTimer = setInterval(() => {
-            alertRotationIndex = (alertRotationIndex + 1) % currentAlerts.length;
-            alertBox.textContent = currentAlerts[alertRotationIndex];
-        }, 3000);
+            alertBox.classList.add('alert-fading');
+            setTimeout(() => {
+                alertRotationIndex = (alertRotationIndex + 1) % currentAlerts.length;
+                alertBox.textContent = currentAlerts[alertRotationIndex];
+                alertBox.classList.remove('alert-fading');
+            }, 350);
+        }, 4000);
     }
 }
 
@@ -260,54 +264,83 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-const WEATHER_CACHE_KEY = 'weatherx_cache_v1';
+const CITY_CACHE_KEY = 'weatherx_city_cache_v1';
+const CITY_CACHE_MAX_ENTRIES = 20;
 
-function saveWeatherCache(data, realAqi, cityName) {
+function loadCityCacheStore() {
     try {
-        localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ data, realAqi, cityName, ts: Date.now() }));
+        return JSON.parse(localStorage.getItem(CITY_CACHE_KEY)) || {};
     } catch (e) {
-        console.error('Cache save failed:', e);
+        console.error('City cache read failed:', e);
+        return {};
     }
 }
 
-function loadFromCacheAndRender() {
+function getCityCache(cityKey) {
+    const store = loadCityCacheStore();
+    return store[cityKey] || null;
+}
+
+function saveCityCache(cityKey, entry) {
     try {
-        const raw = localStorage.getItem(WEATHER_CACHE_KEY);
-        if (!raw) return false;
-        const cached = JSON.parse(raw);
-        applyWeatherData(cached.data, cached.realAqi, cached.cityName);
-        return true;
+        const store = loadCityCacheStore();
+        store[cityKey] = { ...entry, ts: Date.now() };
+
+        const keys = Object.keys(store);
+        if (keys.length > CITY_CACHE_MAX_ENTRIES) {
+            // Evict the oldest entries first so the cache doesn't grow without bound
+            keys.sort((a, b) => (store[a].ts || 0) - (store[b].ts || 0));
+            const toRemove = keys.slice(0, keys.length - CITY_CACHE_MAX_ENTRIES);
+            toRemove.forEach(k => delete store[k]);
+        }
+
+        localStorage.setItem(CITY_CACHE_KEY, JSON.stringify(store));
     } catch (e) {
-        console.error('Cache load failed:', e);
-        return false;
+        console.error('City cache save failed:', e);
     }
 }
 
 async function fetchWeatherData(cityName, presetCoords, context = 'auto') {
     const isFirstLoad = !globalWeatherData;
+    const cacheKey = (cityName || '').trim().toLowerCase();
+    const cached = cacheKey ? getCityCache(cacheKey) : null;
+
     document.getElementById('fetchErrorBanner').style.display = 'none';
+
+    // --- STEP 1: instant paint from cache, if we have it, so the user is never staring at a spinner ---
+    let paintedFromCache = false;
+    if (cached) {
+        applyWeatherData(cached.data, cached.realAqi, cached.cityName, new Date(cached.ts), cached.realPm10);
+        paintedFromCache = true;
+    }
+
     setRefreshState(true);
 
-    // If the device reports no connection at all, skip straight to cached data.
+    // --- STEP 2: if there's no connection at all, we're done — cache (if any) is already on screen ---
     if (!navigator.onLine) {
         setRefreshState(false);
-        const hadCache = loadFromCacheAndRender();
         if (context === 'manual') {
             showSnackbar(dict[config.lang].snackRefreshFailed, 'error');
-        } else if (hadCache) {
+        } else if (paintedFromCache) {
             showSnackbar(dict[config.lang].snackOfflineShowingCached, 'info');
         } else {
-            showSnackbar(dict[config.lang].snackNoInternet, 'error');
+            showSnackbar(dict[config.lang].snackNeedsFirstLoad, 'error');
         }
         return;
     }
 
+    // --- STEP 3: refresh from the network in the background (this is what actually re-renders with live data) ---
     try {
         let lat, lon, formattedName;
         if (presetCoords) {
             lat = presetCoords.lat;
             lon = presetCoords.lon;
             formattedName = presetCoords.name;
+        } else if (cached && typeof cached.lat === 'number' && typeof cached.lon === 'number') {
+            // Skip the geocoding round-trip entirely for cities we already know — this is the main speed win.
+            lat = cached.lat;
+            lon = cached.lon;
+            formattedName = cached.cityName;
         } else {
             let geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${cityName}&count=1&language=en`);
             if (!geoRes.ok) throw new Error(`Geocoding API error: ${geoRes.status}`);
@@ -316,7 +349,7 @@ async function fetchWeatherData(cityName, presetCoords, context = 'auto') {
                 document.getElementById('cityInput').placeholder = dict[config.lang].errorCity;
                 document.getElementById('cityInput').value = '';
                 setRefreshState(false);
-                showSnackbar(dict[config.lang].snackCityNotFound, 'error');
+                if (!paintedFromCache) showSnackbar(dict[config.lang].snackCityNotFound, 'error');
                 return;
             }
             document.getElementById('cityInput').placeholder = dict[config.lang].placeholder;
@@ -326,7 +359,7 @@ async function fetchWeatherData(cityName, presetCoords, context = 'auto') {
         }
         
         let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index,precipitation,is_day&hourly=temperature_2m,weather_code,precipitation_probability,precipitation,dew_point_2m,visibility,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max,precipitation_sum,wind_speed_10m_max&timezone=auto&wind_speed_unit=kmh`;
-        let aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`;
+        let aqUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm10`;
         
         let weatherRes = await fetch(url);
         if (!weatherRes.ok) throw new Error(`Weather API error: ${weatherRes.status}`);
@@ -335,18 +368,20 @@ async function fetchWeatherData(cityName, presetCoords, context = 'auto') {
 
         // Air quality is fetched separately; if it fails we fall back gracefully instead of blocking the whole view
         let realAqi = null;
+        let realPm10 = null;
         try {
             let aqRes = await fetch(aqUrl);
             if (aqRes.ok) {
                 let aqData = await aqRes.json();
                 if (aqData.current && typeof aqData.current.us_aqi === 'number') realAqi = aqData.current.us_aqi;
+                if (aqData.current && typeof aqData.current.pm10 === 'number') realPm10 = aqData.current.pm10;
             }
         } catch (aqErr) {
             console.error("Air quality fetch failed:", aqErr);
         }
 
-        applyWeatherData(data, realAqi, formattedName);
-        saveWeatherCache(data, realAqi, formattedName);
+        applyWeatherData(data, realAqi, formattedName, new Date(), realPm10);
+        saveCityCache(formattedName.trim().toLowerCase(), { data, realAqi, realPm10, cityName: formattedName, lat, lon });
 
         if (!isFirstLoad) {
             showSnackbar(dict[config.lang].snackWeatherUpdated, 'success');
@@ -354,25 +389,21 @@ async function fetchWeatherData(cityName, presetCoords, context = 'auto') {
     } catch (err) {
         console.error("Xato:", err);
         if (context === 'manual') {
-            const hadCache = loadFromCacheAndRender();
             showSnackbar(dict[config.lang].snackRefreshFailed, 'error');
+        } else if (paintedFromCache) {
+            showSnackbar(dict[config.lang].snackOfflineShowingCached, 'info');
         } else {
-            const hadCache = loadFromCacheAndRender();
-            if (hadCache) {
-                showSnackbar(dict[config.lang].snackOfflineShowingCached, 'info');
-            } else {
-                showSnackbar(dict[config.lang].snackServerError, 'warning', {
-                    label: dict[config.lang].snackRetryBtn,
-                    onClick: () => fetchWeatherData(cityName, presetCoords, context)
-                });
-            }
+            showSnackbar(dict[config.lang].snackServerError, 'warning', {
+                label: dict[config.lang].snackRetryBtn,
+                onClick: () => fetchWeatherData(cityName, presetCoords, context)
+            });
         }
     } finally {
         setRefreshState(false);
     }
 }
 
-function applyWeatherData(data, realAqi, formattedName) {
+function applyWeatherData(data, realAqi, formattedName, fetchedAt, realPm10) {
         globalWeatherData = data;
         document.getElementById('navCity').textContent = formattedName;
         document.getElementById('mainCityName').textContent = formattedName;
@@ -382,6 +413,9 @@ function applyWeatherData(data, realAqi, formattedName) {
         let currentCode = data.current.weather_code;
         let currentWindKmh = data.current.wind_speed_10m;
         let currentPrecip = data.current.precipitation || 0;
+        let currentHourIdxForAlerts = new Date().getHours();
+        let currentUvNow = (typeof data.current.uv_index === 'number') ? data.current.uv_index : data.daily.uv_index_max[0];
+        let currentVisKm = data.hourly.visibility ? (data.hourly.visibility[currentHourIdxForAlerts] / 1000) : null;
 
         // --- Expanded extreme weather detection (priority: thunderstorm > heavy snow > heavy rain > heat/cold > wind > moderate/light rain) ---
         const isThunder = [95, 96, 99].includes(currentCode);
@@ -390,6 +424,7 @@ function applyWeatherData(data, realAqi, formattedName) {
         const isHeavyRain = [65, 67, 82].includes(currentCode) || currentPrecip >= 7.6;
         const isModerateRain = [63, 66, 81, 53].includes(currentCode) || (currentPrecip >= 2.5 && currentPrecip < 7.6);
         const isLightRain = [51, 55, 56, 57, 61, 80].includes(currentCode) || (currentPrecip > 0 && currentPrecip < 2.5);
+        const isFogNow = currentCode === 45 || currentCode === 48;
 
         let alertBox = document.getElementById('extremeAlert');
         let activeAlerts = [];
@@ -399,9 +434,19 @@ function applyWeatherData(data, realAqi, formattedName) {
         if (isHeavyRain) activeAlerts.push(dict[config.lang].extremeRain);
         else if (isModerateRain) activeAlerts.push(dict[config.lang].moderateRain);
         else if (isLightRain) activeAlerts.push(dict[config.lang].lightRain);
-        if (currentTemp >= 38) activeAlerts.push(dict[config.lang].extremeHot);
-        if (currentTemp <= 0) activeAlerts.push(dict[config.lang].extremeCold);
+
+        // Temperature tiers (very cold / cold / cool / hot / very hot) — the comfortable 18–25° band shows no alert
+        if (currentTemp <= 0) activeAlerts.push(dict[config.lang].tempVeryCold);
+        else if (currentTemp < 10) activeAlerts.push(dict[config.lang].tempCold);
+        else if (currentTemp < 18) activeAlerts.push(dict[config.lang].tempCool);
+        else if (currentTemp >= 34) activeAlerts.push(dict[config.lang].tempVeryHot);
+        else if (currentTemp >= 26) activeAlerts.push(dict[config.lang].tempHot);
+
         if (currentWindKmh >= 50) activeAlerts.push(dict[config.lang].extremeWind);
+        if (isFogNow) activeAlerts.push(dict[config.lang].condFog);
+        if (currentVisKm !== null && currentVisKm < 2) activeAlerts.push(dict[config.lang].condLowVis);
+        if (currentUvNow >= 6) activeAlerts.push(dict[config.lang].condHighUV);
+        if (typeof realAqi === 'number' && realAqi > 100) activeAlerts.push(dict[config.lang].condBadAQI);
 
         setActiveAlerts(activeAlerts);
         
@@ -429,7 +474,13 @@ function applyWeatherData(data, realAqi, formattedName) {
         
         let uvVal = (typeof data.current.uv_index === 'number') ? data.current.uv_index : data.daily.uv_index_max[0];
         document.getElementById('valUv').textContent = uvVal.toFixed(1);
-        setCardSub('subUv', uvVal <= 2 ? dict[config.lang].low : (uvVal <= 5 ? dict[config.lang].moderate : dict[config.lang].high), uvVal <= 2 ? 'good' : (uvVal <= 5 ? 'normal' : 'bad'));
+        let uvLabel, uvLevel;
+        if (uvVal < 3) { uvLabel = dict[config.lang].low; uvLevel = 'good'; }
+        else if (uvVal < 6) { uvLabel = dict[config.lang].moderate; uvLevel = 'normal'; }
+        else if (uvVal < 8) { uvLabel = dict[config.lang].high; uvLevel = 'bad'; }
+        else if (uvVal < 11) { uvLabel = dict[config.lang].uvVeryHigh; uvLevel = 'bad'; }
+        else { uvLabel = dict[config.lang].uvExtreme; uvLevel = 'bad'; }
+        setCardSub('subUv', uvLabel, uvLevel);
         
         document.getElementById('valHumidity').textContent = `${data.current.relative_humidity_2m}%`;
         
@@ -486,7 +537,7 @@ function applyWeatherData(data, realAqi, formattedName) {
         renderWeeklyWarningCard(data.daily, data.hourly);
         document.getElementById('cityInput').value = '';
 
-        lastUpdated = new Date();
+        lastUpdated = fetchedAt instanceof Date ? fetchedAt : new Date();
         updateLastUpdatedLabel();
 }
 
@@ -531,6 +582,29 @@ function renderActivities(data) {
     });
 }
 
+// Picks a random phrase from a pool, avoiding whichever one was shown last time for this exact key
+// (so the same sentence doesn't repeat back-to-back). Falls back gracefully for pools of 1.
+function pickVariant(pool, key) {
+    if (!pool || pool.length === 0) return '';
+    if (pool.length === 1) return pool[0];
+    const storageKey = `weatherx_variant_${key}`;
+    let lastIdx = -1;
+    try { lastIdx = parseInt(sessionStorage.getItem(storageKey), 10); } catch (e) { /* ignore */ }
+    let idx;
+    do {
+        idx = Math.floor(Math.random() * pool.length);
+    } while (idx === lastIdx && pool.length > 1);
+    try { sessionStorage.setItem(storageKey, idx); } catch (e) { /* ignore */ }
+    return pool[idx];
+}
+
+function getTimeOfDay(hour) {
+    if (hour >= 5 && hour < 11) return 'morning';
+    if (hour >= 11 && hour < 17) return 'midday';
+    if (hour >= 17 && hour < 21) return 'evening';
+    return 'night';
+}
+
 function joinWithAnd(arr, andWord) {
     if (arr.length === 1) return arr[0];
     if (arr.length === 2) return `${arr[0]} ${andWord} ${arr[1]}`;
@@ -557,16 +631,19 @@ function buildWeeklyWarnings(dailyData, hourlyData, lang) {
     };
 
     const condDefs = [
-        { key: 'storm', icon: '⛈️', severity: 'danger', check: i => [95, 96, 99].includes(dailyData.weather_code[i]), label: dict[lang].weekWarnStorm },
+        { key: 'stormRain', icon: '⛈️', severity: 'danger', check: i => [95, 96, 99].includes(dailyData.weather_code[i]) && dailyData.precipitation_sum && dailyData.precipitation_sum[i] > 0, label: dict[lang].weekWarnStormRain },
+        { key: 'stormDry', icon: '🌩️', severity: 'danger', check: i => [95, 96, 99].includes(dailyData.weather_code[i]) && !(dailyData.precipitation_sum && dailyData.precipitation_sum[i] > 0), label: dict[lang].weekWarnStormDry },
         { key: 'heavyRain', icon: '🌧️', severity: 'serious', check: i => [65, 67, 82].includes(dailyData.weather_code[i]) || (dailyData.precipitation_sum && dailyData.precipitation_sum[i] >= 20), label: dict[lang].weekWarnRain },
-        { key: 'heat', icon: '🔥', severity: 'danger', check: i => dailyData.temperature_2m_max[i] >= 38, label: dict[lang].weekWarnHeat },
+        { key: 'sunnyRain', icon: '🌦️', severity: 'info', check: i => [80, 81].includes(dailyData.weather_code[i]), label: dict[lang].weekWarnSunnyRain },
+        { key: 'heat', icon: '☀️', severity: 'danger', check: i => dailyData.temperature_2m_max[i] >= 38, label: dict[lang].weekWarnHeat },
         { key: 'cold', icon: '🥶', severity: 'danger', check: i => dailyData.temperature_2m_min[i] <= 0, label: dict[lang].weekWarnCold },
-        { key: 'wind', icon: '🌬️', severity: 'warning', check: i => dailyData.wind_speed_10m_max && dailyData.wind_speed_10m_max[i] >= 50, label: dict[lang].weekWarnWind },
-        { key: 'heavySnow', icon: '❄️', severity: 'serious', check: i => [75, 86].includes(dailyData.weather_code[i]), label: dict[lang].weekWarnHeavySnow },
+        { key: 'wind', icon: '💨', severity: 'warning', check: i => dailyData.wind_speed_10m_max && dailyData.wind_speed_10m_max[i] >= 50, label: dict[lang].weekWarnWind },
+        { key: 'heavySnow', icon: '🌨️', severity: 'serious', check: i => (dailyData.weather_code[i] >= 71 && dailyData.weather_code[i] <= 77) || [85, 86].includes(dailyData.weather_code[i]), label: dict[lang].weekWarnHeavySnow },
         { key: 'frost', icon: '🧊', severity: 'warning', check: i => dailyData.temperature_2m_min[i] > 0 && dailyData.temperature_2m_min[i] <= 3, label: dict[lang].weekWarnFrost },
         { key: 'fog', icon: '🌫️', severity: 'warning', check: i => [45, 48].includes(dailyData.weather_code[i]), label: dict[lang].weekWarnFog },
         { key: 'highUV', icon: '☀️', severity: 'warning', check: i => dailyData.uv_index_max[i] >= 8, label: dict[lang].weekWarnUV },
-        { key: 'lowVis', icon: '👁️', severity: 'warning', check: i => { const v = avgVisibilityForDay(i); return v !== null && v < 3000; }, label: dict[lang].weekWarnLowVis }
+        { key: 'lowVis', icon: '👁️', severity: 'warning', check: i => { const v = avgVisibilityForDay(i); return v !== null && v < 3000; }, label: dict[lang].weekWarnLowVis },
+        { key: 'tempSwing', icon: '🌡️', severity: 'info', check: i => i > 0 && Math.abs(dailyData.temperature_2m_max[i] - dailyData.temperature_2m_max[i - 1]) >= 8, label: dict[lang].weekWarnTempSwing }
     ];
 
     const matrix = condDefs.map(def => Array.from({ length: days }, (_, i) => def.check(i)));
@@ -596,10 +673,16 @@ function buildWeeklyWarnings(dailyData, hourlyData, lang) {
     ranges.sort((a, b) => a.start - b.start);
     const items = ranges.map(r => {
         const def = condDefs[r.ci];
-        const isWeekend = (r.end - r.start === 1) && weekdayNum(r.start) === 6 && weekdayNum(r.end) === 0;
-        const text = isWeekend
-            ? dict[lang].weekendTemplate.replace('%CONDS%', def.label)
-            : dict[lang].weekRangeTemplate.replace('%START%', dayLabel(r.start)).replace('%END%', dayLabel(r.end)).replace('%CONDS%', def.label);
+        const span = r.end - r.start; // 1 = two days, 2+ = three or more days
+        const isWeekend = (span === 1) && weekdayNum(r.start) === 6 && weekdayNum(r.end) === 0;
+        let text;
+        if (isWeekend) {
+            text = dict[lang].weekendTemplate.replace('%CONDS%', def.label);
+        } else if (span === 1) {
+            text = dict[lang].weekTwoDayTemplate.replace('%DAY1%', dayLabel(r.start)).replace('%DAY2%', dayLabel(r.end)).replace('%CONDS%', def.label);
+        } else {
+            text = dict[lang].weekRangeTemplate.replace('%START%', dayLabel(r.start)).replace('%END%', dayLabel(r.end)).replace('%CONDS%', def.label);
+        }
         return { icon: def.icon, severity: def.severity, text };
     });
 
@@ -618,14 +701,60 @@ function buildWeeklyWarnings(dailyData, hourlyData, lang) {
     return { count: rawEventCount, items };
 }
 
-function buildDayAdviceCards(dayLabel, maxTemp, windMax, uvMax, precipProb, code, activeL) {
-    const isBadStorm = [95, 96, 99, 82, 65, 67].includes(code);
-    const carMessage = isBadStorm ? activeL.carM_bad : (maxTemp > 37 ? activeL.carM_bad : activeL.carM_good);
-    const avMessage = (windMax > 40 || isBadStorm) ? activeL.avM_bad : activeL.avM_good;
-    const clothMessage = maxTemp >= 30 ? activeL.clothHot : (maxTemp <= 10 ? activeL.clothCold : activeL.clothMild);
-    const umbrellaMessage = precipProb >= 40 ? activeL.umbrellaYes : activeL.umbrellaNo;
-    const uvMessage = uvMax <= 2 ? activeL.uvLowMsg : (uvMax <= 5 ? activeL.uvModMsg : activeL.uvHighMsg);
-    const sportMessage = isBadStorm ? activeL.sportBad : ((maxTemp > 36 || windMax > 35 || precipProb >= 50) ? activeL.sportCaution : activeL.sportGood);
+function buildDayAdviceCards(dayLabel, maxTemp, windMax, uvNow, precipProb, code, activeL) {
+    const isStorm = [95, 96, 99].includes(code);
+    const isFog = code === 45 || code === 48;
+    const isSnowCode = (code >= 71 && code <= 77) || code === 85 || code === 86 || code === 66 || code === 67;
+    const isHeavyRainCode = [65, 67, 82].includes(code);
+    const isRainCode = (code >= 51 && code <= 67) || (code >= 80 && code <= 82);
+
+    // Clothing (5 tiers by temperature)
+    let clothMessage;
+    if (maxTemp <= 0) clothMessage = activeL.clothVeryCold;
+    else if (maxTemp < 15) clothMessage = activeL.clothCool;
+    else if (maxTemp < 26) clothMessage = activeL.clothMild;
+    else if (maxTemp < 34) clothMessage = activeL.clothHot;
+    else clothMessage = activeL.clothVeryHot;
+
+    // Umbrella (5 tiers: snow takes priority, then rain probability)
+    let umbrellaMessage;
+    if (isSnowCode) umbrellaMessage = activeL.umbrellaSnow;
+    else if (isHeavyRainCode || precipProb >= 70) umbrellaMessage = activeL.umbrellaHeavy;
+    else if (precipProb >= 40) umbrellaMessage = activeL.umbrellaYes;
+    else if (precipProb >= 15) umbrellaMessage = activeL.umbrellaMaybe;
+    else umbrellaMessage = activeL.umbrellaNo;
+
+    // Driving (priority: storm > fog > strong wind > rain > good)
+    let carMessage;
+    if (isStorm || isHeavyRainCode) carMessage = activeL.carStorm;
+    else if (isFog) carMessage = activeL.carFog;
+    else if (windMax >= 50) carMessage = activeL.carWind;
+    else if (isRainCode) carMessage = activeL.carRain;
+    else carMessage = activeL.carGood;
+
+    // Aviation (priority: storm > fog > strong wind > light wind > good)
+    let avMessage;
+    if (isStorm) avMessage = activeL.avStorm;
+    else if (isFog) avMessage = activeL.avFog;
+    else if (windMax > 40) avMessage = activeL.avStrongWind;
+    else if (windMax >= 20) avMessage = activeL.avLightWind;
+    else avMessage = activeL.avGood;
+
+    // UV (5 tiers, using the live/current value so evening or nighttime never shows midday-only wording)
+    let uvMessage;
+    if (uvNow < 3) uvMessage = activeL.uvLowMsg;
+    else if (uvNow < 6) uvMessage = activeL.uvModMsg;
+    else if (uvNow < 8) uvMessage = activeL.uvHighMsg;
+    else if (uvNow < 11) uvMessage = activeL.uvVeryHighMsg;
+    else uvMessage = activeL.uvExtremeMsg;
+
+    // Sport (priority: storm/very cold > rain > strong wind > hot > good)
+    let sportMessage;
+    if (isStorm || maxTemp <= 0) sportMessage = activeL.sportBad;
+    else if (isRainCode) sportMessage = activeL.sportRain;
+    else if (windMax >= 40) sportMessage = activeL.sportWind;
+    else if (maxTemp >= 30) sportMessage = activeL.sportHot;
+    else sportMessage = activeL.sportGood;
 
     return `
         <div style="margin: 16px 0 10px 0; font-size: 12px; color: #e5e7eb; font-weight: bold;">${dayLabel}</div>
@@ -673,11 +802,12 @@ function generateSmartAdvice() {
     const daily = globalWeatherData.daily;
 
     // Today: blend live "current" readings with today's daily extremes
+    const todayUvNow = (typeof globalWeatherData.current.uv_index === 'number') ? globalWeatherData.current.uv_index : daily.uv_index_max[0];
     const todayHtml = buildDayAdviceCards(
         activeL.dayToday,
         Math.max(globalWeatherData.current.temperature_2m, daily.temperature_2m_max[0]),
         Math.max(globalWeatherData.current.wind_speed_10m, daily.wind_speed_10m_max ? daily.wind_speed_10m_max[0] : 0),
-        daily.uv_index_max[0],
+        todayUvNow,
         daily.precipitation_probability_max ? daily.precipitation_probability_max[0] : 0,
         globalWeatherData.current.weather_code,
         activeL
@@ -708,7 +838,8 @@ function renderHourly(hourlyData, dailyData, fallbackIsNight) {
         let isNight = isNightAtTime(hourlyData.time ? hourlyData.time[i] : null, dailyData, fallbackIsNight);
         let code = hourlyData.weather_code[i];
         let hourWindKmh = hourlyData.wind_speed_10m ? hourlyData.wind_speed_10m[i] : undefined;
-        let emoji = getWeatherEmoji(code, isNight, hourWindKmh);
+        let hourPrecip = hourlyData.precipitation ? hourlyData.precipitation[i] : undefined;
+        let emoji = getWeatherEmoji(code, isNight, hourWindKmh, hourPrecip);
         
         let temp = Math.round(hourlyData.temperature_2m[i]);
         if(config.temp === 'F') temp = Math.round((temp * 9/5) + 32);
@@ -751,8 +882,9 @@ function renderWeekly(dailyData) {
         
         let code = dailyData.weather_code[i];
         let dayWindKmh = dailyData.wind_speed_10m_max ? dailyData.wind_speed_10m_max[i] : undefined;
-        let dayEmoji = getWeatherEmoji(code, false, dayWindKmh);
-        let nightEmoji = getWeatherEmoji(code, true, dayWindKmh);
+        let dayPrecip = dailyData.precipitation_sum ? dailyData.precipitation_sum[i] : undefined;
+        let dayEmoji = getWeatherEmoji(code, false, dayWindKmh, dayPrecip);
+        let nightEmoji = getWeatherEmoji(code, true, dayWindKmh, dayPrecip);
         let descText = getWeatherDesc(code, config.lang);
         
         let rainProb = dailyData.precipitation_probability_max ? dailyData.precipitation_probability_max[i] : 0;
@@ -791,6 +923,11 @@ if (_geoPref.enabled && _geoPref.name) {
 }
 
 changeLang(config.lang);
+registerNetworkWatchdog();
+
+// Quietly top up the cache for every other history city a few seconds after boot,
+// so switching between them stays instant even without a connection later.
+setTimeout(prewarmHistoryCache, 4000);
 
 // Auto-refresh weather data every hour
 setInterval(() => fetchWeatherData(currentCity), 60 * 60 * 1000);
