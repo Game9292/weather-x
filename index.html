@@ -2,17 +2,17 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Weather X</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
         body { background: #0b0f19; color: white; display: flex; justify-content: center; overflow-x: hidden; }
         
         .app-container {
-            width: 100%; max-width: 410px; height: 100vh;
+            width: 100%; max-width: 410px; height: 100vh; height: 100dvh;
             overflow-y: scroll; overflow-x: hidden; position: relative;
             background: transparent;
-            scrollbar-width: none; padding-bottom: 30px; z-index: 2;
+            scrollbar-width: none; padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)); z-index: 2;
         }
         .app-container::-webkit-scrollbar { display: none; }
 
@@ -29,7 +29,8 @@
         .settings-overlay, .advice-overlay {
             position: fixed; top: 0; left: 50%; transform: translateX(-50%);
             width: 100%; max-width: 410px; height: 100vh; height: 100dvh;
-            background: #111827; color: #ffffff; z-index: 500; padding: 25px;
+            background: #111827; color: #ffffff; z-index: 500;
+            padding: calc(25px + env(safe-area-inset-top, 0px)) 25px calc(25px + env(safe-area-inset-bottom, 0px)) 25px;
             display: none; flex-direction: column;
             overflow-y: auto; overscroll-behavior: contain;
         }
@@ -48,7 +49,7 @@
         .advice-card p { font-size: 13px; color: #9ca3af; line-height: 1.4; }
 
         /* Header */
-        .sticky-header { position: sticky; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(10px); }
+        .sticky-header { position: sticky; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(10px); }
         .header-buttons { display: flex; gap: 15px; }
         .menu-trigger { background: none; border: none; color: white; font-size: 22px; cursor: pointer; opacity: 0.8; }
         
@@ -68,7 +69,8 @@
         .main-temp { font-size: 84px; font-weight: 300; line-height: 1; margin: 10px 0; position: relative; left: 10px; }
         .weather-desc { font-size: 18px; color: #38bdf8; font-weight: 500; }
         .feels-like { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
-        .extreme-alert { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 10px; font-weight: bold; display: none; animation: pulse 2s infinite; }
+        .extreme-alert { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 10px; font-weight: bold; display: none; animation: pulse 2s infinite; transition: opacity 0.35s ease, transform 0.35s ease; }
+        .extreme-alert.alert-fading { opacity: 0; transform: translateY(-4px); }
         
         @keyframes pulse {
             0% { opacity: 0.6; }
@@ -246,7 +248,7 @@
             padding: 9px 18px; border-radius: 10px; cursor: pointer;
         }
         #onboardingSkipBtn {
-            position: absolute; top: 18px; right: 18px; background: rgba(255,255,255,0.08);
+            position: absolute; top: calc(18px + env(safe-area-inset-top, 0px)); right: 18px; background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15); color: #d1d5db; font-size: 12px; font-weight: 600;
             padding: 7px 12px; border-radius: 20px; cursor: pointer;
         }
@@ -290,6 +292,51 @@
         
         /* Sun panel row card */
         .sun-row { grid-column: span 2; display: flex; justify-content: space-between; gap: 12px; }
+        /* ADAPTIVE CONTRAST: subtle shadow on all text so it never blends into a bright sky */
+        body { text-shadow: 0 1px 3px rgba(0,0,0,0.35); }
+
+        /* Cards get a touch more opacity + blur so text stays readable on any background */
+        .card, .block-wrapper, .activity-item, .history-tag {
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* When the weather background is bright (e.g. clear day), flip text to a dark, high-contrast palette */
+        body.light-bg { color: #16202e; text-shadow: 0 1px 2px rgba(255,255,255,0.25); }
+        body.light-bg .card-title { color: rgba(15,23,42,0.55); }
+        body.light-bg .card-value { color: #16202e; }
+        body.light-bg .card-sub { color: rgba(15,23,42,0.45); }
+        body.light-bg .weekly-day,
+        body.light-bg .weekly-temps,
+        body.light-bg .weekly-temps strong,
+        body.light-bg .hourly-item strong,
+        body.light-bg #mainCityName,
+        body.light-bg #mainTemp,
+        body.light-bg #navCity,
+        body.light-bg .weather-desc,
+        body.light-bg .feels-like,
+        body.light-bg #mainPrecip,
+        body.light-bg .section-title,
+        body.light-bg .history-tag,
+        body.light-bg .activity-name,
+        body.light-bg #weeklyWarningSummary,
+        body.light-bg #weeklyWarningSub {
+            color: #16202e;
+        }
+        body.light-bg .weekly-text,
+        body.light-bg .hourly-item,
+        body.light-bg .card-sub,
+        body.light-bg .weekly-temps { color: rgba(22,32,46,0.7); }
+        body.light-bg #cityInput { color: #16202e; }
+        body.light-bg #cityInput::placeholder { color: rgba(22,32,46,0.45); }
+        body.light-bg .card, body.light-bg .block-wrapper, body.light-bg .activity-item, body.light-bg .history-tag {
+            background: rgba(255,255,255,0.35);
+            border-color: rgba(15,23,42,0.08);
+        }
+        body.light-bg .sticky-header { background: rgba(255,255,255,0.25); }
+        body.light-bg .search-box { background: rgba(255,255,255,0.3); border-color: rgba(15,23,42,0.1); }
+        body.light-bg .search-box ::placeholder { color: rgba(22,32,46,0.4); }
     </style>
 </head>
 <body>
@@ -401,7 +448,7 @@
     </div>
 
     <!-- WEEKLY WARNINGS DETAIL MODAL -->
-    <div class="weekly-modal-overlay" id="weeklyModal" style="display:none; position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 410px; height: 100vh; height: 100dvh; background: #111827; color: #ffffff; z-index: 500; padding: 25px; flex-direction: column; overflow-y: auto; overscroll-behavior: contain;">
+    <div class="weekly-modal-overlay" id="weeklyModal" style="display:none; position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 410px; height: 100vh; height: 100dvh; background: #111827; color: #ffffff; z-index: 500; padding: calc(25px + env(safe-area-inset-top, 0px)) 25px calc(25px + env(safe-area-inset-bottom, 0px)) 25px; flex-direction: column; overflow-y: auto; overscroll-behavior: contain;">
         <div class="settings-header">
             <h3 id="weeklyModalTitle">Haftalik ogohlantirishlar</h3>
             <button onclick="closeWeeklyModal()" style="background:none; border:none; color:#64748b; font-size:22px; cursor:pointer;">✕</button>
@@ -415,7 +462,7 @@
     
     <!-- STICKY HEADER -->
     <div class="sticky-header">
-        <div style="font-size:18px; font-weight:600; display: flex; align-items: center; gap: 6px;">📍 <span id="navCity">Yuklanmoqda...</span></div>
+        <div style="font-size:18px; font-weight:600; display: flex; align-items: center; gap: 6px;">📍 <span id="navCity">Yuklanmoqda...</span> <span id="offlineBadge" style="display:none; font-size:11px; font-weight:700; background:rgba(239,68,68,0.18); color:#fca5a5; padding:2px 8px; border-radius:10px; margin-left:2px;">OFFLINE</span></div>
         <div class="header-buttons">
             <button class="menu-trigger" onclick="openAdvice()">💡</button>
             <button class="menu-trigger" onclick="openSettings()">⚙️</button>
