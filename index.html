@@ -19,9 +19,20 @@
         /* Dynamic Weather Canvas Effect */
         #weather-canvas {
             position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-            width: 100%; max-width: 410px; height: 100vh;
+            width: 100%; max-width: 410px; height: 100vh; height: 100dvh;
             z-index: 1; pointer-events: none;
             background: linear-gradient(180deg, #0f172a 0%, #070a13 100%);
+            transition: background 1s ease;
+        }
+
+        /* Fills the exact strip behind the bottom system nav/gesture bar with the
+           current weather's own bottom gradient color, so there's never a black/foreign
+           gap below the app content — color is kept in sync via JS (see applyAdaptiveContrast). */
+        #bottomSafeFill {
+            position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+            width: 100%; max-width: 410px; height: env(safe-area-inset-bottom, 0px);
+            z-index: 1; pointer-events: none;
+            background: #070a13;
             transition: background 1s ease;
         }
 
@@ -49,7 +60,27 @@
         .advice-card p { font-size: 13px; color: #9ca3af; line-height: 1.4; }
 
         /* Header */
-        .sticky-header { position: sticky; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: calc(15px + env(safe-area-inset-top, 0px)) 20px 15px 20px; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(10px); }
+        .sticky-header {
+            position: sticky; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            /* Dynamic safe-area handling: on devices where safe-area-inset-top is 0 (older
+               Android WebViews), max() keeps a sensible minimum instead of hugging the very
+               top edge; on notched/punch-hole devices it grows with the actual inset. */
+            padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 12px));
+            padding-bottom: 16px;
+            padding-left: 20px;
+            padding-right: 20px;
+            min-height: 56px;
+            background: rgba(30, 41, 59, 0.55);
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        /* Fallback for Android WebViews that don't support backdrop-filter at all:
+           a more opaque solid tone keeps text legible without relying on blur. */
+        @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+            .sticky-header { background: rgba(24, 32, 46, 0.92); }
+        }
         .header-buttons { display: flex; gap: 15px; }
         .menu-trigger { background: none; border: none; color: white; font-size: 22px; cursor: pointer; opacity: 0.8; }
         
@@ -248,7 +279,7 @@
             padding: 9px 18px; border-radius: 10px; cursor: pointer;
         }
         #onboardingSkipBtn {
-            position: absolute; top: calc(18px + env(safe-area-inset-top, 0px)); right: 18px; background: rgba(255,255,255,0.08);
+            position: absolute; top: calc(18px + env(safe-area-inset-top, 0px)); left: 18px; background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15); color: #d1d5db; font-size: 12px; font-weight: 600;
             padding: 7px 12px; border-radius: 20px; cursor: pointer;
         }
@@ -334,7 +365,15 @@
             background: rgba(255,255,255,0.35);
             border-color: rgba(15,23,42,0.08);
         }
-        body.light-bg .sticky-header { background: rgba(255,255,255,0.25); }
+        /* The top header is intentionally neutral and never follows the weather/brightness
+           adaptive-contrast system — its text and icons always stay light-on-dark. */
+        body.light-bg .sticky-header,
+        body.light-bg .sticky-header #navCity,
+        body.light-bg .sticky-header .menu-trigger,
+        body.light-bg .sticky-header #offlineBadge {
+            color: #ffffff !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.35) !important;
+        }
         body.light-bg .search-box { background: rgba(255,255,255,0.3); border-color: rgba(15,23,42,0.1); }
         body.light-bg .search-box ::placeholder { color: rgba(22,32,46,0.4); }
     </style>
@@ -342,6 +381,7 @@
 <body>
 
 <canvas id="weather-canvas"></canvas>
+<div id="bottomSafeFill"></div>
 
 <!-- GLOBAL SNACKBAR -->
 <div id="snackbarContainer"></div>
