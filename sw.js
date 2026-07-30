@@ -1,4 +1,4 @@
-const CACHE_NAME = 'obhavo-cache-v4';
+const CACHE_NAME = 'obhavo-cache-v3';
 // Aynan sizning 3 ta faylingiz ro'yxati:
 const ASSETS = [
   './',
