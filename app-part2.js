@@ -436,11 +436,12 @@ function applyWeatherData(data, realAqi, formattedName, fetchedAt, realPm10) {
         else if (isLightRain) activeAlerts.push(dict[config.lang].lightRain);
 
         // Temperature tiers (very cold / cold / cool / hot / very hot) — the comfortable 18–25° band shows no alert
-        if (currentTemp <= 0) activeAlerts.push(dict[config.lang].tempVeryCold);
-        else if (currentTemp < 10) activeAlerts.push(dict[config.lang].tempCold);
-        else if (currentTemp < 18) activeAlerts.push(dict[config.lang].tempCool);
-        else if (currentTemp >= 34) activeAlerts.push(dict[config.lang].tempVeryHot);
-        else if (currentTemp >= 26) activeAlerts.push(dict[config.lang].tempHot);
+        // Temperature state (real air temperature, not "feels like"): only 4 named states exist.
+        // 6°C–34°C is considered unremarkable and shows no temperature badge at all.
+        if (currentTemp <= -5) activeAlerts.push(dict[config.lang].tempVeryCold);
+        else if (currentTemp <= 5) activeAlerts.push(dict[config.lang].tempCold);
+        else if (currentTemp >= 38) activeAlerts.push(dict[config.lang].tempVeryHot);
+        else if (currentTemp >= 35) activeAlerts.push(dict[config.lang].tempHot);
 
         if (currentWindKmh >= 50) activeAlerts.push(dict[config.lang].extremeWind);
         if (isFogNow) activeAlerts.push(dict[config.lang].condFog);
