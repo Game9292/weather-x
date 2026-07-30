@@ -54,21 +54,51 @@ const dict = {
         weeklyCardTitle: "⚠️ Haftalik ogohlantirishlar", weeklyCardCountTemplate: "⚠️ Kelgusi haftada %N% ta muhim ob-havo hodisasi kutilmoqda.",
         weeklyDetailsBtn: "Batafsil →", weeklyModalTitle: "Haftalik ogohlantirishlar",
         weeklyNoneMsg: "✅ Kelgusi haftada xavfli ob-havo hodisalari kutilmaydi.", weeklyNoneSub: "Ob-havo barqaror bo'lishi kutilmoqda.",
-        weekTemplate: "%DAY% kuni %CONDS% kutilmoqda.", weekRangeTemplate: "%START%dan %END%gacha %CONDS% kutilmoqda.", weekSectionTitle: "Haftalik ogohlantirishlar", andWord: "va",
+        weekTemplate: "%DAY% kuni %CONDS% kutilmoqda.", weekTwoDayTemplate: "%DAY1% va %DAY2% kunlari %CONDS% kutilmoqda.", weekRangeTemplate: "%START%dan %END%gacha %CONDS% kutilmoqda.", weekSectionTitle: "Haftalik ogohlantirishlar", andWord: "va",
+        weekWarnStormDry: "momaqaldiroq", weekWarnStormRain: "momaqaldiroqli yomg'ir", weekWarnSunnyRain: "quyoshli yomg'ir", weekWarnTempSwing: "haroratning keskin o'zgarishi",
         dayToday: "Bugun", dayTomorrow: "Ertaga",
         adviceClothTitle: "Kiyim tavsiyasi", adviceUmbrellaTitle: "Soyabon kerakmi", adviceUvTitle: "UV tavsiyasi", adviceSportTitle: "Sport uchun qulaylik",
-        clothHot: "Yengil, havo o'tkazuvchan kiyim kiying.", clothMild: "Yengil kurtka yoki jemper mos keladi.", clothCold: "Issiq kiyim, palto va sharf kiying.",
-        umbrellaYes: "Ha, ehtiyot bo'lib soyabon oling.", umbrellaNo: "Kerak emas, yomg'ir kutilmayapti.",
-        uvLowMsg: "UV past, qo'shimcha himoya shart emas.", uvModMsg: "UV o'rtacha, quyosh kremi tavsiya etiladi.", uvHighMsg: "UV yuqori, quyosh kremi va ko'zoynak shart.",
-        sportGood: "Sport bilan shug'ullanish uchun ajoyib sharoit.", sportCaution: "Mumkin, lekin ehtiyot choralarini ko'ring.", sportBad: "Ochiq havoda sport tavsiya etilmaydi.",
+        clothVeryCold: "Havo ancha sovuq. Qalin ustki kiyim va sovuqdan himoyalovchi aksessuarlar foydali bo'ladi.",
+        clothCool: "Havo salqin. Yengil kurtka yoki issiqroq ustki kiyim qulayroq bo'ladi.",
+        clothMild: "Harorat qulay. Oddiy kundalik kiyim bilan bemalol yurishingiz mumkin.",
+        clothHot: "Havo issiq. Yengil, havo o'tkazuvchi kiyim tanlang va ko'proq suyuqlik iching.",
+        clothVeryHot: "Issiqlik kuchli. Ochiq quyoshda uzoq qolmaslik va boshni quyoshdan himoyalash ma'qul.",
+        umbrellaNo: "Soyabon kerak emas. Yomg'ir ehtimoli hozircha juda past.",
+        umbrellaMaybe: "Yomg'ir ehtimoli bor. Tashqariga uzoq chiqmoqchi bo'lsangiz, soyabon olib qo'yish foydali.",
+        umbrellaYes: "Yomg'ir kutilmoqda. Soyabon yoki suv o'tkazmaydigan ustki kiyim tavsiya etiladi.",
+        umbrellaHeavy: "Yomg'ir kuchayishi mumkin. Soyabon bilan birga suvdan himoyalovchi kiyim ham foydali bo'ladi.",
+        umbrellaSnow: "Yog'in qishki sharoit yaratishi mumkin. Sirpanchiq joylarda ehtiyot bo'ling.",
+        uvLowMsg: "UV darajasi past. Ochiq havodagi odatiy faoliyatlar uchun qulay vaqt.",
+        uvModMsg: "UV o'rtacha. Uzoq vaqt tashqarida bo'lsangiz, quyoshdan himoyalanishni hisobga oling.",
+        uvHighMsg: "UV kuchli. Ayniqsa tush paytida bosh kiyim va quyoshdan himoyalanish foydali.",
+        uvVeryHighMsg: "UV juda yuqori. Iloji bo'lsa, tush paytida soyali joylarda bo'ling.",
+        uvExtremeMsg: "UV xavfli darajada yuqori. Ochiq quyoshda uzoq qolmaslik va kuchli himoya choralarini ko'rish kerak.",
+        sportGood: "Ob-havo ochiq havodagi mashg'ulotlar uchun qulay. Suv ichishni unutmang.",
+        sportHot: "Havo issiq. Mashg'ulotni ertalab yoki kechqurun o'tkazish qulayroq bo'ladi.",
+        sportRain: "Yomg'ir sabab yo'llar sirpanchiq bo'lishi mumkin. Xavfsiz joyni tanlang.",
+        sportWind: "Shamol kuchli. Ochiq maydondagi mashg'ulotlarda ehtiyot bo'ling.",
+        sportBad: "Sharoit ochiq havodagi sport uchun qulay emas. Mashg'ulotni qisqartirish yoki yopiq joyni tanlash mumkin.",
         good: "Yaxshi", normal: "Qoniqarli", bad: "Yomon", act1: "Yurish", act2: "Bog'dorchilik", act3: "Velosport", act4: "Yugurish", act5: "Keyingi 3s",
-        carT: "Haydash", carM_good: "Yo'llar ochiq, ko'rinish a'lo.", carM_bad: "Ehtiyot bo'ling! Noqulay ob-havo sharoiti.",
-        avT: "Aviatsiya/Parvozlar", avM_good: "Parvoz uchun ideal sharoit.", avM_bad: "Kuchli shamol xavfi bor.",
+        carT: "Haydash",
+        carGood: "Yo'l sharoiti odatda qulay. Oddiy ehtiyot choralariga amal qiling.",
+        carRain: "Yo'l nam va sirpanchiq bo'lishi mumkin. Tezlikni pasaytirib, masofani saqlang.",
+        carFog: "Ko'rish masofasi kamaygan. Faralarni yoqing va oldingizdagi transportdan xavfsiz masofa saqlang.",
+        carWind: "Kuchli shamol avtomobil boshqaruviga ta'sir qilishi mumkin. Ochiq yo'llarda ehtiyotkor bo'ling.",
+        carStorm: "Ob-havo beqaror. Zarur bo'lmasa, safarni kechiktirishni ko'rib chiqing.",
+        avT: "Aviatsiya/Parvozlar",
+        avGood: "Parvoz uchun ob-havo odatda qulay ko'rinmoqda. Yakuniy holatni aviakompaniyadan tekshiring.",
+        avLightWind: "Shamol mavjud, ammo sharoit keskin ko'rinmayapti. Parvoz jadvalini kuzatib boring.",
+        avStrongWind: "Kuchli shamol parvoz jadvaliga ta'sir qilishi mumkin. Aviakompaniya yangiliklarini tekshiring.",
+        avStorm: "Momaqaldiroq parvozlarda kechikishlarga sabab bo'lishi mumkin. Safar oldidan holatni aniqlang.",
+        avFog: "Ko'rish masofasi kamaygan. Ayrim reyslarda kechikish ehtimoli mavjud.",
         clothT: "Kiyim va Quyosh", clothM_good: "Yengil kiyim.", clothM_bad: "Yuqori UV - quyosh kremi va ko'zoynak taqing.",
         extremeHot: "⚠️ JUDA ISSIQ!", extremeCold: "⚠️ JUDA SOVUQ!", extremeWind: "⚠️ KUCHLI SHAMOL!", extremeStorm: "⚠️ MOMAQALDIROQ XAVFI!",
+        tempVeryCold: "🥶 Juda sovuq", tempCold: "❄️ Sovuq", tempCool: "🧥 Salqin", tempHot: "☀️ Issiq", tempVeryHot: "🔥 Juda issiq",
+        condFog: "🌫️ Tuman", condLowVis: "👁️ Ko'rish masofasi past", condHighUV: "☀️ Yuqori UV", condBadAQI: "😷 Havo sifati yomon",
         extremeRain: "⚠️ KUCHLI YOMG'IR!", extremeSnow: "⚠️ KUCHLI QOR!", moderateRain: "🌧️ O'rtacha yomg'ir", lightRain: "🌦️ Yengil yomg'ir",
         lastUpdated: "Oxirgi yangilanish", refresh: "Yangilash", refreshing: "Yangilanmoqda...", fetchError: "⚠️ Ma'lumotlarni olishda xatolik yuz berdi", retry: "Qayta urinish",
         lblPressure: "Bosim", lblVisibility: "Ko'rinish", day: "Kun", night: "Tun", low: "Past", moderate: "O'rtacha", high: "Yuqori", exc: "A'lo", lim: "Cheklangan",
+        uvVeryHigh: "Juda yuqori", uvExtreme: "Ekstremal", offlineBadgeLabel: "OFLAYN",
         cfgLocation: "JOYLASHUV", autoLocationLabel: "📍 Joylashuvni avtomatik aniqlash", cfgTutorial: "YO'RIQNOMA", btnReplayTutorial: "🔄 Yo'riqnomani qayta ko'rsatish",
         tutSearchTitle: "Shahar qidiruvi", tutSearchText: "Istalgan shaharni shu yerda qidiring.",
         tutRefreshTitle: "Yangilash tugmasi", tutRefreshText: "Ob-havo ma'lumotlarini istalgan payt qo'lda yangilang.",
@@ -81,10 +111,11 @@ const dict = {
         onboardingPermAllowBtn: "📍 Ruxsat berish", onboardingPermLaterBtn: "⌨️ Keyinroq qo'lda kiritaman",
         historyDeleteTitle: "Qidiruv tarixidan o'chirish", historyDeleteText: "Bu shaharni qidiruv tarixidan o'chirmoqchimisiz?",
         historyDeleteCancel: "Bekor qilish", historyDeleteConfirm: "O'chirish",
-        snackWeatherUpdated: "✅ Ob-havo muvaffaqiyatli yangilandi.", snackLocationDetected: "📍 Joylashuv aniqlandi.",
+        snackWeatherUpdated: "✅ Ma'lumotlar muvaffaqiyatli yangilandi.", snackLocationDetected: "📍 Joylashuv aniqlandi.",
         snackCityNotFound: "❌ Shahar topilmadi. Inglizcha nomini yozib ko'ring.", snackNoInternet: "🌐 Internet mavjud emas.",
         snackServerError: "⚠️ Server bilan bog'lanib bo'lmadi.", snackGpsDisabled: "📍 GPS o'chirilgan. Uni Sozlamalarda yoqing.",
-        snackRefreshFailed: "Yangilab bo'lmadi.", snackOfflineShowingCached: "🌐 Oflayn: oxirgi saqlangan ma'lumotlar ko'rsatilmoqda.",
+        snackRefreshFailed: "⚠️ Yangilab bo'lmadi.", snackOfflineShowingCached: "🌐 Internet yo'q. Oxirgi saqlangan ma'lumot ko'rsatilmoqda.",
+        snackNeedsFirstLoad: "📡 Internetga ulanib, ushbu shahar ma'lumotlarini birinchi marta yuklang.",
         snackOpenSettingsBtn: "Sozlamalarni ochish", snackRetryBtn: "Qayta urinish",
         gpsDialogTitle: "📍 Joylashuv xizmati o'chirilgan", gpsDialogText: "Joylashuv xizmati o'chirilgan. Uni Sozlamalarda yoqing.",
         geoDetecting: "📍 Aniqlanmoqda...",
@@ -105,21 +136,51 @@ const dict = {
         weeklyCardTitle: "⚠️ Недельные предупреждения", weeklyCardCountTemplate: "⚠️ На следующей неделе ожидается %N% значимых погодных событий.",
         weeklyDetailsBtn: "Подробнее →", weeklyModalTitle: "Недельные предупреждения",
         weeklyNoneMsg: "✅ На следующей неделе опасных погодных явлений не ожидается.", weeklyNoneSub: "Ожидается стабильная погода.",
-        weekTemplate: "%DAY%: ожидается %CONDS%.", weekRangeTemplate: "С %START% по %END%: ожидается %CONDS%.", weekSectionTitle: "Недельные предупреждения", andWord: "и",
+        weekTemplate: "%DAY%: ожидается %CONDS%.", weekTwoDayTemplate: "%DAY1% и %DAY2%: ожидается %CONDS%.", weekRangeTemplate: "С %START% по %END%: ожидается %CONDS%.", weekSectionTitle: "Недельные предупреждения", andWord: "и",
+        weekWarnStormDry: "гроза", weekWarnStormRain: "гроза с дождём", weekWarnSunnyRain: "солнечный дождь", weekWarnTempSwing: "резкое изменение температуры",
         dayToday: "Сегодня", dayTomorrow: "Завтра",
         adviceClothTitle: "Совет по одежде", adviceUmbrellaTitle: "Нужен ли зонт", adviceUvTitle: "УФ рекомендация", adviceSportTitle: "Удобство для спорта",
-        clothHot: "Легкая, дышащая одежда.", clothMild: "Легкая куртка или свитер подойдут.", clothCold: "Теплая одежда, пальто и шарф.",
-        umbrellaYes: "Да, возьмите зонт на всякий случай.", umbrellaNo: "Не нужен, дождь не ожидается.",
-        uvLowMsg: "УФ низкий, доп. защита не обязательна.", uvModMsg: "УФ умеренный, рекомендуется солнцезащитный крем.", uvHighMsg: "УФ высокий, крем и очки обязательны.",
-        sportGood: "Отличные условия для занятий спортом.", sportCaution: "Можно, но соблюдайте осторожность.", sportBad: "Занятия на улице не рекомендуются.",
+        clothVeryCold: "На улице довольно холодно. Пригодится тёплая верхняя одежда и защитные аксессуары от холода.",
+        clothCool: "Прохладно. Лёгкая куртка или более тёплая верхняя одежда будут удобнее.",
+        clothMild: "Комфортная температура. Можно спокойно ходить в обычной повседневной одежде.",
+        clothHot: "Жарко. Выбирайте лёгкую, дышащую одежду и пейте больше жидкости.",
+        clothVeryHot: "Сильная жара. Не стоит долго находиться на открытом солнце, желательно защитить голову.",
+        umbrellaNo: "Зонт не нужен. Вероятность дождя пока очень низкая.",
+        umbrellaMaybe: "Есть вероятность дождя. Если собираетесь надолго на улицу, стоит взять зонт.",
+        umbrellaYes: "Ожидается дождь. Рекомендуется зонт или водонепроницаемая верхняя одежда.",
+        umbrellaHeavy: "Дождь может усилиться. Кроме зонта пригодится и защищающая от воды одежда.",
+        umbrellaSnow: "Осадки могут создать зимние условия. Будьте осторожны на скользких участках.",
+        uvLowMsg: "УФ-индекс низкий. Хорошее время для обычных занятий на улице.",
+        uvModMsg: "УФ умеренный. Если будете долго на улице, подумайте о защите от солнца.",
+        uvHighMsg: "УФ сильный. Особенно в полдень пригодится головной убор и защита от солнца.",
+        uvVeryHighMsg: "УФ очень высокий. По возможности оставайтесь в тени в полуденные часы.",
+        uvExtremeMsg: "УФ опасно высокий. Не стоит долго находиться на открытом солнце, нужна усиленная защита.",
+        sportGood: "Погода подходит для занятий на свежем воздухе. Не забывайте пить воду.",
+        sportHot: "На улице жарко. Тренировку удобнее провести утром или вечером.",
+        sportRain: "Из-за дождя дороги могут быть скользкими. Выберите безопасное место.",
+        sportWind: "Ветер сильный. Будьте осторожны при тренировках на открытой местности.",
+        sportBad: "Условия не подходят для занятий на улице. Можно сократить тренировку или заниматься в помещении.",
         good: "Хорошо", normal: "Удовлетворительно", bad: "Плохо", act1: "Прогулка", act2: "Садоводство", act3: "Велоспорт", act4: "Пробежка", act5: "След. 3ч",
-        carT: "Вождение", carM_good: "Дороги чистые, отличная видимость.", carM_bad: "Внимание! Плохие погодные условия.",
-        avT: "Aвиация/Полеты", avM_good: "Идеальные условия для полетов.", avM_bad: "Опасность сильного ветра.",
+        carT: "Вождение",
+        carGood: "Дорожные условия обычно комфортные. Соблюдайте обычные меры предосторожности.",
+        carRain: "Дорога может быть мокрой и скользкой. Снизьте скорость и держите дистанцию.",
+        carFog: "Видимость снижена. Включите фары и держите безопасную дистанцию от впереди идущего транспорта.",
+        carWind: "Сильный ветер может влиять на управление автомобилем. Будьте осторожны на открытых участках.",
+        carStorm: "Погода нестабильна. Если нет необходимости, рассмотрите возможность отложить поездку.",
+        avT: "Авиация/Полёты",
+        avGood: "Погода для полётов обычно выглядит благоприятной. Уточните итоговый статус у авиакомпании.",
+        avLightWind: "Ветер присутствует, но условия не выглядят критичными. Следите за расписанием рейсов.",
+        avStrongWind: "Сильный ветер может повлиять на расписание полётов. Проверяйте новости от авиакомпании.",
+        avStorm: "Гроза может стать причиной задержек рейсов. Уточните ситуацию перед поездкой.",
+        avFog: "Видимость снижена. Возможны задержки некоторых рейсов.",
         clothT: "Одежда и Солнце", clothM_good: "Легкая одежда.", clothM_bad: "Высокий УФ - используйте крем и очки.",
         extremeHot: "⚠️ ОЧЕНЬ ЖАРКО!", extremeCold: "⚠️ ОЧЕНЬ ХОЛОДНО!", extremeWind: "⚠️ СИЛЬНЫЙ ВЕТЕР!", extremeStorm: "⚠️ ОПАСНОСТЬ ГРОЗЫ!",
+        tempVeryCold: "🥶 Очень холодно", tempCold: "❄️ Холодно", tempCool: "🧥 Прохладно", tempHot: "☀️ Жарко", tempVeryHot: "🔥 Очень жарко",
+        condFog: "🌫️ Туман", condLowVis: "👁️ Низкая видимость", condHighUV: "☀️ Высокий УФ", condBadAQI: "😷 Плохое качество воздуха",
         extremeRain: "⚠️ СИЛЬНЫЙ ЛИВЕНЬ!", extremeSnow: "⚠️ СИЛЬНЫЙ СНЕГОПАД!", moderateRain: "🌧️ Умеренный дождь", lightRain: "🌦️ Небольшой дождь",
         lastUpdated: "Последнее обновление", refresh: "Обновить", refreshing: "Обновление...", fetchError: "⚠️ Не удалось загрузить данные", retry: "Повторить",
         lblPressure: "Давление", lblVisibility: "Видимость", day: "Дн", night: "Нч", low: "Низкий", moderate: "Умеренный", high: "Высокий", exc: "Отличная", lim: "Ограниченная",
+        uvVeryHigh: "Очень высокий", uvExtreme: "Экстремальный", offlineBadgeLabel: "ОФЛАЙН",
         cfgLocation: "ЛОКАЦИЯ", autoLocationLabel: "📍 Автоматически определять местоположение", cfgTutorial: "ОБУЧЕНИЕ", btnReplayTutorial: "🔄 Показать обучение снова",
         tutSearchTitle: "Поиск города", tutSearchText: "Ищите любой город здесь.",
         tutRefreshTitle: "Кнопка обновления", tutRefreshText: "Обновляйте данные о погоде вручную в любое время.",
@@ -132,10 +193,11 @@ const dict = {
         onboardingPermAllowBtn: "📍 Разрешить", onboardingPermLaterBtn: "⌨️ Введу вручную позже",
         historyDeleteTitle: "Удаление из истории", historyDeleteText: "Удалить этот город из истории поиска?",
         historyDeleteCancel: "Отмена", historyDeleteConfirm: "Удалить",
-        snackWeatherUpdated: "✅ Погода успешно обновлена.", snackLocationDetected: "📍 Местоположение определено.",
+        snackWeatherUpdated: "✅ Данные успешно обновлены.", snackLocationDetected: "📍 Местоположение определено.",
         snackCityNotFound: "❌ Город не найден. Попробуйте ввести название на английском.", snackNoInternet: "🌐 Нет подключения к интернету.",
         snackServerError: "⚠️ Не удалось связаться с сервером.", snackGpsDisabled: "📍 GPS отключен. Включите его в настройках.",
-        snackRefreshFailed: "Не удалось обновить.", snackOfflineShowingCached: "🌐 Офлайн: показаны последние сохраненные данные.",
+        snackRefreshFailed: "⚠️ Не удалось обновить.", snackOfflineShowingCached: "🌐 Нет интернета. Показаны последние сохранённые данные.",
+        snackNeedsFirstLoad: "📡 Подключитесь к интернету, чтобы загрузить данные этого города впервые.",
         snackOpenSettingsBtn: "Открыть настройки", snackRetryBtn: "Повторить",
         gpsDialogTitle: "📍 Служба геолокации отключена", gpsDialogText: "Служба геолокации отключена. Включите ее в настройках.",
         geoDetecting: "📍 Определение...",
@@ -156,21 +218,51 @@ const dict = {
         weeklyCardTitle: "⚠️ Weekly Warnings", weeklyCardCountTemplate: "⚠️ %N% significant weather events expected next week.",
         weeklyDetailsBtn: "Details →", weeklyModalTitle: "Weekly Warnings",
         weeklyNoneMsg: "✅ No hazardous weather expected next week.", weeklyNoneSub: "Weather is expected to remain stable.",
-        weekTemplate: "%DAY%: %CONDS% expected.", weekRangeTemplate: "From %START% to %END%: %CONDS% expected.", weekSectionTitle: "Weekly Warnings", andWord: "and",
+        weekTemplate: "%DAY%: %CONDS% expected.", weekTwoDayTemplate: "%DAY1% and %DAY2%: %CONDS% expected.", weekRangeTemplate: "From %START% to %END%: %CONDS% expected.", weekSectionTitle: "Weekly Warnings", andWord: "and",
+        weekWarnStormDry: "a thunderstorm", weekWarnStormRain: "a thunderstorm with rain", weekWarnSunnyRain: "sun showers", weekWarnTempSwing: "a sharp temperature change",
         dayToday: "Today", dayTomorrow: "Tomorrow",
         adviceClothTitle: "Clothing Advice", adviceUmbrellaTitle: "Need an Umbrella?", adviceUvTitle: "UV Advice", adviceSportTitle: "Sport Suitability",
-        clothHot: "Light, breathable clothing.", clothMild: "A light jacket or sweater works well.", clothCold: "Warm clothing, coat and scarf.",
-        umbrellaYes: "Yes, bring an umbrella just in case.", umbrellaNo: "Not needed, no rain expected.",
-        uvLowMsg: "UV is low, no extra protection needed.", uvModMsg: "UV is moderate, sunscreen recommended.", uvHighMsg: "UV is high, sunscreen and sunglasses required.",
-        sportGood: "Great conditions for outdoor sports.", sportCaution: "Possible, but take precautions.", sportBad: "Outdoor sports not recommended.",
+        clothVeryCold: "It's quite cold out. Warm outerwear and cold-protective accessories will help.",
+        clothCool: "It's cool. A light jacket or warmer outerwear will be more comfortable.",
+        clothMild: "The temperature is comfortable. Regular everyday clothing works just fine.",
+        clothHot: "It's hot. Choose light, breathable clothing and drink plenty of fluids.",
+        clothVeryHot: "The heat is intense. Avoid long periods in direct sun and protect your head.",
+        umbrellaNo: "No umbrella needed. Chance of rain is very low for now.",
+        umbrellaMaybe: "There's some chance of rain. If you'll be out for a while, an umbrella is worth bringing.",
+        umbrellaYes: "Rain is expected. An umbrella or waterproof outerwear is recommended.",
+        umbrellaHeavy: "The rain may intensify. Along with an umbrella, water-resistant clothing will help too.",
+        umbrellaSnow: "Precipitation may create winter conditions. Be careful on slippery surfaces.",
+        uvLowMsg: "UV is low. A good time for your usual outdoor activities.",
+        uvModMsg: "UV is moderate. If you'll be outside for a while, consider some sun protection.",
+        uvHighMsg: "UV is strong. A hat and sun protection help, especially around midday.",
+        uvVeryHighMsg: "UV is very high. Stay in the shade during midday hours if you can.",
+        uvExtremeMsg: "UV is dangerously high. Avoid long periods in direct sun and use strong protection.",
+        sportGood: "Weather is good for outdoor activities. Don't forget to stay hydrated.",
+        sportHot: "It's hot outside. Working out in the morning or evening will be more comfortable.",
+        sportRain: "Rain may make surfaces slippery. Choose a safe spot.",
+        sportWind: "Wind is strong. Be careful with activities in open areas.",
+        sportBad: "Conditions aren't great for outdoor sports. Consider shortening your workout or exercising indoors.",
         good: "Good", normal: "Satisfactory", bad: "Bad", act1: "Walking", act2: "Gardening", act3: "Cycling", act4: "Running", act5: "Next 3h",
-        carT: "Driving", carM_good: "Roads are clear, great visibility.", carM_bad: "Warning! Unfavorable weather conditions.",
-        avT: "Aviation/Flights", avM_good: "Ideal conditions for flights.", avM_bad: "High wind warning.",
+        carT: "Driving",
+        carGood: "Road conditions are usually comfortable. Follow normal precautions.",
+        carRain: "Roads may be wet and slippery. Slow down and keep your distance.",
+        carFog: "Visibility is reduced. Turn on your headlights and keep a safe distance from traffic ahead.",
+        carWind: "Strong wind may affect vehicle handling. Take care on open roads.",
+        carStorm: "Weather is unstable. Consider delaying your trip if it's not essential.",
+        avT: "Aviation/Flights",
+        avGood: "Weather for flights generally looks favorable. Check the final status with your airline.",
+        avLightWind: "There's some wind, but conditions don't look severe. Keep an eye on the flight schedule.",
+        avStrongWind: "Strong wind may affect flight schedules. Check for airline updates.",
+        avStorm: "Thunderstorms may cause flight delays. Check the situation before your trip.",
+        avFog: "Visibility is reduced. Some flights may be delayed.",
         clothT: "Clothing & Sun", clothM_good: "Light clothing.", clothM_bad: "High UV - wear sunscreen and sunglasses.",
         extremeHot: "⚠️ EXTREMELY HOT!", extremeCold: "⚠️ EXTREMELY COLD!", extremeWind: "⚠️ STRONG WIND!", extremeStorm: "⚠️ THUNDERSTORM DANGER!",
+        tempVeryCold: "🥶 Very cold", tempCold: "❄️ Cold", tempCool: "🧥 Cool", tempHot: "☀️ Hot", tempVeryHot: "🔥 Very hot",
+        condFog: "🌫️ Fog", condLowVis: "👁️ Low visibility", condHighUV: "☀️ High UV", condBadAQI: "😷 Poor air quality",
         extremeRain: "⚠️ HEAVY RAIN!", extremeSnow: "⚠️ HEAVY SNOW!", moderateRain: "🌧️ Moderate rain", lightRain: "🌦️ Light rain",
         lastUpdated: "Last updated", refresh: "Refresh", refreshing: "Refreshing...", fetchError: "⚠️ Failed to fetch weather data", retry: "Retry",
         lblPressure: "Pressure", lblVisibility: "Visibility", day: "Day", night: "Night", low: "Low", moderate: "Moderate", high: "High", exc: "Excellent", lim: "Limited",
+        uvVeryHigh: "Very high", uvExtreme: "Extreme", offlineBadgeLabel: "OFFLINE",
         cfgLocation: "LOCATION", autoLocationLabel: "📍 Auto-detect my location", cfgTutorial: "TUTORIAL", btnReplayTutorial: "🔄 Show tutorial again",
         tutSearchTitle: "City search", tutSearchText: "Search for any city right here.",
         tutRefreshTitle: "Refresh button", tutRefreshText: "Manually refresh the weather data any time.",
@@ -183,10 +275,11 @@ const dict = {
         onboardingPermAllowBtn: "📍 Allow", onboardingPermLaterBtn: "⌨️ I'll type it in later",
         historyDeleteTitle: "Remove from history", historyDeleteText: "Remove this city from your search history?",
         historyDeleteCancel: "Cancel", historyDeleteConfirm: "Delete",
-        snackWeatherUpdated: "✅ Weather updated successfully.", snackLocationDetected: "📍 Location detected.",
+        snackWeatherUpdated: "✅ Data updated successfully.", snackLocationDetected: "📍 Location detected.",
         snackCityNotFound: "❌ City not found. Try the English spelling.", snackNoInternet: "🌐 No internet connection.",
         snackServerError: "⚠️ Couldn't reach the server.", snackGpsDisabled: "📍 GPS is off. Turn it on in Settings.",
-        snackRefreshFailed: "Couldn't refresh.", snackOfflineShowingCached: "🌐 Offline: showing the last saved data.",
+        snackRefreshFailed: "⚠️ Couldn't refresh.", snackOfflineShowingCached: "🌐 No internet. Showing the last saved data.",
+        snackNeedsFirstLoad: "📡 Connect to the internet to load this city's data for the first time.",
         snackOpenSettingsBtn: "Open Settings", snackRetryBtn: "Retry",
         gpsDialogTitle: "📍 Location services are off", gpsDialogText: "Location services are turned off. Turn them on in Settings.",
         geoDetecting: "📍 Detecting...",
@@ -291,6 +384,23 @@ function resizeCanvas() {
     canvas.height = window.innerHeight;
 }
 
+function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    return [parseInt(h.substr(0, 2), 16), parseInt(h.substr(2, 2), 16), parseInt(h.substr(4, 2), 16)];
+}
+
+function relativeLuminance([r, g, b]) {
+    // Standard perceived-brightness approximation (0 = black, 255 = white)
+    return (0.299 * r + 0.587 * g + 0.114 * b);
+}
+
+function applyAdaptiveContrast(hexTop, hexBottom) {
+    const lumTop = relativeLuminance(hexToRgb(hexTop));
+    const lumBottom = relativeLuminance(hexToRgb(hexBottom));
+    const avgLum = (lumTop + lumBottom) / 2;
+    document.body.classList.toggle('light-bg', avgLum > 140);
+}
+
 function startWeatherAnimation(code, isDay) {
     cancelAnimationFrame(animationFrameId);
     particles = [];
@@ -299,28 +409,31 @@ function startWeatherAnimation(code, isDay) {
     const isFog = code === 45 || code === 48;
 
     if (code === 0) {
-        canvas.style.background = isDay
-            ? "linear-gradient(180deg, #1e3a8a 0%, #38bdf8 100%)"
-            : "linear-gradient(180deg, #0c1033 0%, #030712 100%)";
+        const [top, bottom] = isDay ? ["#1e3a8a", "#38bdf8"] : ["#0c1033", "#030712"];
+        canvas.style.background = `linear-gradient(180deg, ${top} 0%, ${bottom} 100%)`;
+        applyAdaptiveContrast(top, bottom);
         if (!isDay) type = 'stars';
     } else if (code >= 1 && code <= 3) {
-        canvas.style.background = isDay
-            ? "linear-gradient(180deg, #3b5980 0%, #64748b 100%)"
-            : "linear-gradient(180deg, #1e293b 0%, #0f172a 100%)";
+        const [top, bottom] = isDay ? ["#3b5980", "#64748b"] : ["#1e293b", "#0f172a"];
+        canvas.style.background = `linear-gradient(180deg, ${top} 0%, ${bottom} 100%)`;
+        applyAdaptiveContrast(top, bottom);
         if (!isDay) type = 'stars';
     } else if (isFog) {
         type = 'fog';
-        canvas.style.background = isDay
-            ? "linear-gradient(180deg, #64748b 0%, #94a3b8 100%)"
-            : "linear-gradient(180deg, #1f2937 0%, #111827 100%)";
+        const [top, bottom] = isDay ? ["#64748b", "#94a3b8"] : ["#1f2937", "#111827"];
+        canvas.style.background = `linear-gradient(180deg, ${top} 0%, ${bottom} 100%)`;
+        applyAdaptiveContrast(top, bottom);
     } else if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || isThunder) {
         type = isThunder ? 'storm' : 'rain';
         canvas.style.background = "linear-gradient(180deg, #0f172a 0%, #090d16 100%)";
+        applyAdaptiveContrast("#0f172a", "#090d16");
     } else if ((code >= 71 && code <= 77) || code === 85 || code === 86) {
         type = 'snow';
         canvas.style.background = "linear-gradient(180deg, #334155 0%, #0f172a 100%)";
+        applyAdaptiveContrast("#334155", "#0f172a");
     } else {
         canvas.style.background = "linear-gradient(180deg, #111827 0%, #030712 100%)";
+        applyAdaptiveContrast("#111827", "#030712");
     }
     
     if (type === 'none') {
@@ -437,25 +550,99 @@ function degToCompass(deg, lang) {
     return dirs[idx];
 }
 
-function getWeatherEmoji(code, isNight, windKmh) {
+const NIGHT_PARTLY_CLOUDY_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align:-4px"><path d="M18.5 9.51c-.83.4-1.76.62-2.74.62-3.5 0-6.33-2.83-6.33-6.33 0-.98.22-1.9.62-2.74C6.94 2.02 4 5.4 4 9.46 4 14.13 7.87 18 12.54 18c4.06 0 7.44-2.94 8.4-6.05-.68.4-1.44.65-2.44.65-.34 0-.67-.03-1-.09z" fill="#fbbf24"/><path d="M8 22c-1.66 0-3-1.34-3-3 0-1.5 1.09-2.73 2.53-2.96A4.5 4.5 0 0111.5 13c2.11 0 3.87 1.47 4.33 3.44C17.36 16.68 18.5 17.94 18.5 19.5c0 1.38-1.12 2.5-2.5 2.5H8z" fill="#cbd5e1" opacity="0.95"/></svg>';
+const NIGHT_PARTLY_CLOUDY_RAIN_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align:-4px"><path d="M18.5 8.51c-.83.4-1.76.62-2.74.62-3.5 0-6.33-2.83-6.33-6.33 0-.98.22-1.9.62-2.74C6.94 1.02 4 4.4 4 8.46 4 13.13 7.87 17 12.54 17c4.06 0 7.44-2.94 8.4-6.05-.68.4-1.44.65-2.44.65-.34 0-.67-.03-1-.09z" fill="#fbbf24"/><path d="M8 19.5c-1.66 0-3-1.16-3-2.6 0-1.3 1.09-2.37 2.53-2.57A4.5 4.5 0 0111.5 11c2.11 0 3.87 1.28 4.33 2.99 1.53.21 2.67 1.34 2.67 2.71 0 1.2-1.12 2.17-2.5 2.17H8z" fill="#cbd5e1" opacity="0.95"/><line x1="9" y1="20.5" x2="8" y2="22.5" stroke="#7dd3fc" stroke-width="1.4" stroke-linecap="round"/><line x1="12.5" y1="20.5" x2="11.5" y2="22.5" stroke="#7dd3fc" stroke-width="1.4" stroke-linecap="round"/><line x1="16" y1="20.5" x2="15" y2="22.5" stroke="#7dd3fc" stroke-width="1.4" stroke-linecap="round"/></svg>';
+
+function getWeatherEmoji(code, isNight, windKmh, precipAmount) {
     // Strong-wind override: only for otherwise "plain sky" conditions (clear/partly cloudy/overcast).
     // Rain, storm, snow, and fog icons are more diagnostic and are never replaced by the wind icon.
     const isPlainSky = code >= 0 && code <= 3;
     if (isPlainSky && typeof windKmh === 'number' && windKmh >= STRONG_WIND_THRESHOLD_KMH) {
-        return "🌬️";
+        return "💨";
     }
     if (code === 0) return isNight ? "🌙" : "☀️";
-    if (code >= 1 && code <= 3) return isNight ? "☁️" : "🌤️";
+    if (code === 1 || code === 2) return isNight ? NIGHT_PARTLY_CLOUDY_SVG : "🌤️"; // partly cloudy: distinct day/night pair
+    if (code === 3) return "☁️"; // fully overcast — no sun/moon showing either way
     if (code === 45 || code === 48) return "🌫️";
-    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return "🌧️";
-    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return "❄️";
-    if (code >= 95 && code <= 99) return "⚡";
+    if (code >= 95 && code <= 99) {
+        // Thunderstorm-only (dry lightning) vs thunderstorm-with-rain, based on actual precipitation
+        return (typeof precipAmount === 'number' && precipAmount > 0) ? "⛈️" : "🌩️";
+    }
+    if (code >= 80 && code <= 82) {
+        // Rain showers: sun can peek through during the day; at night there's no sun to show
+        return isNight ? NIGHT_PARTLY_CLOUDY_RAIN_SVG : "🌦️";
+    }
+    if (code >= 51 && code <= 67) return "🌧️";
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return "🌨️";
     return "☁️";
 }
 
 // ============================================================
 // SPLASH SCREEN
 // ============================================================
+function updateOfflineBadge() {
+    const badge = document.getElementById('offlineBadge');
+    if (!badge) return;
+    if (navigator.onLine) {
+        badge.style.display = 'none';
+    } else {
+        badge.textContent = dict[config.lang].offlineBadgeLabel;
+        badge.style.display = 'inline-block';
+    }
+}
+
+function registerNetworkWatchdog() {
+    window.addEventListener('online', () => {
+        updateOfflineBadge();
+        showSnackbar(dict[config.lang].snackWeatherUpdated, 'success');
+        fetchWeatherData(currentCity, null, 'auto');
+    });
+    window.addEventListener('offline', () => {
+        updateOfflineBadge();
+        showSnackbar(dict[config.lang].snackNoInternet, 'error');
+    });
+    updateOfflineBadge();
+}
+
+// Silently keeps every city in the search history cached, so tapping between them
+// (even fully offline) always has fresh-ish data ready instantly.
+async function prewarmHistoryCache() {
+    if (!navigator.onLine) return;
+    for (const city of searchHistory) {
+        if (city === currentCity) continue; // already just fetched live
+        const cacheKey = city.trim().toLowerCase();
+        const existing = getCityCache(cacheKey);
+        if (existing && Date.now() - (existing.ts || 0) < 30 * 60 * 1000) continue; // fresh enough (<30 min old)
+        try {
+            let geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en`);
+            if (!geoRes.ok) continue;
+            let geoData = await geoRes.json();
+            if (!geoData.results || geoData.results.length === 0) continue;
+            const { latitude: lat, longitude: lon, name } = geoData.results[0];
+            let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index,precipitation,is_day&hourly=temperature_2m,weather_code,precipitation_probability,precipitation,dew_point_2m,visibility,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max,precipitation_sum,wind_speed_10m_max&timezone=auto&wind_speed_unit=kmh`;
+            let weatherRes = await fetch(url);
+            if (!weatherRes.ok) continue;
+            let data = await weatherRes.json();
+            if (data.error) continue;
+
+            let realAqi = null;
+            let realPm10 = null;
+            try {
+                let aqRes = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm10`);
+                if (aqRes.ok) {
+                    let aqData = await aqRes.json();
+                    if (aqData.current && typeof aqData.current.us_aqi === 'number') realAqi = aqData.current.us_aqi;
+                    if (aqData.current && typeof aqData.current.pm10 === 'number') realPm10 = aqData.current.pm10;
+                }
+            } catch (e) { /* non-critical */ }
+
+            saveCityCache(cacheKey, { data, realAqi, realPm10, cityName: name, lat, lon });
+        } catch (e) {
+            console.error(`Pre-warm cache failed for ${city}:`, e);
+        }
+    }
+}
+
 function initSplashScreen() {
     const tagline = SPLASH_TAGLINES[Math.floor(Math.random() * SPLASH_TAGLINES.length)];
     const taglineEl = document.getElementById('splashTagline');
