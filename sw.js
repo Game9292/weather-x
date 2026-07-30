@@ -1,4 +1,4 @@
-const CACHE_NAME = 'obhavo-cache-v4';
+const CACHE_NAME = 'obhavo-cache-v5';
 // Aynan sizning 3 ta faylingiz ro'yxati:
 const ASSETS = [
   './',
@@ -18,9 +18,20 @@ self.addEventListener('install', (e) => {
 
 // Internet yo'q bo'lganda fayllarni keshdan (oflayn) olib berish
 self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      return cachedResponse || fetch(e.request);
-    })
-  );
+  // Faqat sahifa yuklash so'rovlarini (HTML) ushlab qolamiz
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => {
+        // Agar internet bo'lmasa yoki yangilash (refresh) xato bersa, keshdagi index.html ni qaytaradi
+        return caches.match('index.html');
+      })
+    );
+  } else {
+    // Rasmlar, JS va CSS fayllari uchun standart kesh mexanizmi
+    e.respondWith(
+      caches.match(e.request).then((cachedResponse) => {
+        return cachedResponse || fetch(e.request);
+      })
+    );
+  }
 });
