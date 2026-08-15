@@ -1,10 +1,10 @@
-const CACHE_NAME = 'obhavo-v8';
+const CACHE_NAME = 'weather-final-ultra-v1';
 // Aynan sizning 3 ta faylingiz ro'yxati:
 const ASSETS = [
   './',
-  'index.html',
-  'app-part1.js',
-  'app-part2.js'
+  'index.html?v=1',
+  'app-part1.js?v=1',
+  'app-part2.js?v=1'
 ];
 
 // Ilova birinchi marta ochilganda fayllarni telefon keshiga saqlash
